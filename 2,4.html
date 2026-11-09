@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora Simples</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="number"] {
+      width: 80px;
+      padding: 10px;
+      font-size: 18px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: #007bff;
+    }
+
+    input[type="number"]:disabled {
+      background-color: #e9ecef;
+      cursor: not-allowed;
+    }
+
+    .grupo-operacoes {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-op {
+      font-size: 18px;
+      font-weight: bold;
+      width: 40px;
+      height: 44px;
+      color: #333;
+      background-color: #e9ecef;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-op:hover {
+      background-color: #dee2e6;
+    }
+
+    .btn-op.ativo {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .grupo-especiais {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-especial {
+      font-size: 22px;
+      font-weight: bold;
+      width: 40px;
+      height: 44px;
+      color: white;
+      background-color: #111;
+      border: 2px solid #111;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-especial:hover {
+      background-color: #333;
+    }
+
+    .btn-especial.ativo {
+      border-color: #007bff;
+    }
+
+    .btn-igual {
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      background-color: #28a745;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-igual:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <input type="number" id="num1" value="20">
+    
+    <div class="grupo-operacoes">
+      <button class="btn-op ativo" onclick="selecionarOperacao('+', this)">+</button>
+      <button class="btn-op" onclick="selecionarOperacao('-', this)">-</button>
+      <button class="btn-op" onclick="selecionarOperacao('*', this)">x</button>
+      <button class="btn-op" onclick="selecionarOperacao('/', this)">/</button>
+      <button class="btn-op" onclick="selecionarOperacao('^', this)">^</button>
+      <button class="btn-op" onclick="selecionarOperacao('!', this)">!</button>
+      <button class="btn-op" onclick="selecionarOperacao('C', this)">C</button>
+    </div>
+
+    <div class="grupo-especiais">
+      <button class="btn-especial" onclick="selecionarOperacao('Σ', this)">Σ</button>
+      <button class="btn-especial" onclick="selecionarOperacao('Π', this)">Π</button>
+    </div>
+    
+    <input type="number" id="num2" value="5">
+    
+    <button class="btn-igual" onclick="calcular()">=</button>
+    
+    <input type="number" id="resultado" readonly placeholder="Result">
+  </div>
+
+  <script>
+    let operacaoSelecionada = '+';
+
+    function selecionarOperacao(op, elemento) {
+      operacaoSelecionada = op;
+
+      const botoes = document.querySelectorAll('.btn-op, .btn-especial');
+      botoes.forEach(btn => btn.classList.remove('ativo'));
+
+      elemento.classList.add('ativo');
+
+      // Desabilita o segundo campo se a operação for Fatorial (!)
+      const num2Input = document.getElementById('num2');
+      if (op === '!') {
+        num2Input.disabled = true;
+      } else {
+        num2Input.disabled = false;
+      }
+    }
+
+    function calcularFatorial(n) {
+      if (n < 0 || !Number.isInteger(n)) return null;
+      if (n === 0 || n === 1) return 1;
+      let resultado = 1;
+      for (let i = 2; i <= n; i++) {
+        resultado *= i;
+      }
+      return resultado;
+    }
+
+    function calcular() {
+      const num1 = parseFloat(document.getElementById('num1').value);
+      const num2 = parseFloat(document.getElementById('num2').value);
+      const campoResultado = document.getElementById('resultado');
+
+      if (isNaN(num1) || (operacaoSelecionada !== '!' && isNaN(num2))) {
+        campoResultado.value = '';
+        return;
+      }
+
+      // Validação para falhar na divisão por zero
+      if (operacaoSelecionada === '/' && num2 === 0) {
+        alert('Não é possível dividir por zero!');
+        campoResultado.value = '';
+        return;
+      }
+
+      let res = 0;
+
+      switch (operacaoSelecionada) {
+        case '+':
+          res = num1 + num2;
+          break;
+        case '-':
+          res = num1 - num2;
+          break;
+        case '*':
+          res = num1 * num2;
+          break;
+        case '/':
+          res = num1 / num2;
+          break;
+        case '^':
+          res = Math.pow(num1, num2);
+          break;
+        case '!':
+          const fat = calcularFatorial(num1);
+          if (fat === null) {
+            alert('Fatorial requer um número inteiro não-negativo!');
+            campoResultado.value = '';
+            return;
+          }
+          res = fat;
+          break;
+        case 'C':
+          // Combinação C(n, p) = n! / (p! * (n - p)!)
+          if (num1 < num2 || num1 < 0 || num2 < 0 || !Number.isInteger(num1) || !Number.isInteger(num2)) {
+            alert('Na combinação C(n, p), ambos devem ser inteiros positivos e n deve ser maior ou igual a p!');
+            campoResultado.value = '';
+            return;
+          }
+          res = calcularFatorial(num1) / (calcularFatorial(num2) * calcularFatorial(num1 - num2));
+          break;
+        case 'Σ':
+          res = num1 + num2;
+          break;
+        case 'Π':
+          res = num1 * num2;
+          break;
+      }
+
+      campoResultado.value = res;
+    }
+
+    calcular();
+  </script>
+
+</body>
+</html>
